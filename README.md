@@ -104,7 +104,7 @@ Please note that contrarily to ```in_forward``` that only accepts UNIX
 timestamps, fluent-plugin-event-tail supports the original in_tail
 ```time_format``` parameter, so you can also pass strings as event times.
 The default value of ```time_format``` is ```'%Y-%m-%d %H:%M:%S %z```.
-If you pass a numeric UNIX timestamp they ```time_format``` will be ignored.
+If you pass a numeric UNIX timestamp then ```time_format``` will be ignored.
 
 ## Contributing
 
