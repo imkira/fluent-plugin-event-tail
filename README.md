@@ -67,13 +67,13 @@ with the exception of ```tag``` and ```format``` that were removed.
 
 ```
 # fluent.conf
-<match prefix.**>
+<source>
   type event_tail
   path /var/log/your_app.log
   pos_file /var/log/your_app.log.pos
 # disable next line to enable custom time formatting
 # time_format %d %b %Y %H:%M:%S
-</match>
+</source>
 ```
 
 ## Usage
