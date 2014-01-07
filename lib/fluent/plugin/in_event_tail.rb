@@ -43,23 +43,31 @@ module Fluent
     end
 
     def receive_lines(lines)
-      es = MultiEventStream.new
-      tag = nil
+      array = []
+      last_tag = nil
       lines.each do |line|
         begin
           line.chomp!
-          tag = parse_line(line) do |time, record|
-            es.add(time, record)
+          parse_line(line) do |tag, time, record|
+            if last_tag != tag
+              emit_array(last_tag, array)
+              array = []
+              last_tag = tag
+            end
+            array.push([time, record])
           end
         rescue
           $log.warn line.dump, :error=>$!.to_s
           $log.debug_backtrace
         end
       end
+      emit_array(last_tag, array)
+    end
 
-      unless tag.nil? || es.empty?
+    def emit_array(tag, array)
+      unless tag.nil? || array.empty?
         begin
-          Engine.emit_stream(tag, es)
+          Engine.emit_array(tag, array)
         rescue => e
           # ignore errors. Engine shows logs and backtraces.
         end
@@ -76,17 +84,15 @@ module Fluent
         entries.each do |e|
           time = parse_time(e[0])
           record = e[1]
-          block.call(time, record)
+          block.call(tag, time, record)
         end
 
         # [tag, time, record]
       else
         time = parse_time(msg[1])
         record = msg[2]
-        block.call(time, record)
+        block.call(tag, time, record)
       end
-
-      tag
     end
 
     def parse_time(time)
