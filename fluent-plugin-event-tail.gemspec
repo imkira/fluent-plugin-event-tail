@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |gem|
   gem.name          = "fluent-plugin-event-tail"
-  gem.version       = "0.0.1"
+  gem.version       = "0.0.2"
   gem.authors       = ["Mario Freitas"]
   gem.email         = ["imkira@gmail.com"]
   gem.description   = %q{fluentd input plugin derived from in_tail and inspired by in_forward for reading [tag, time, record] messages from a file}
