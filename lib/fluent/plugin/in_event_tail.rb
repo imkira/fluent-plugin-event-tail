@@ -97,7 +97,7 @@ module Fluent
 
     def parse_time(time)
       if !@time_format.nil? and time.is_a? String
-        Time.strptime(time, @time_format).to_i
+        Time.strptime(time, @time_format).to_f
       else
         time = time.to_i
         time = Engine.now if time == 0
