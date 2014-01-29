@@ -154,19 +154,21 @@ class EventTailInputTest < Test::Unit::TestCase
 
     d = create_driver(conf)
 
+    time = "6 Dec 2001 12:33:45"
     d.run do
       sleep 1
 
       File.open("#{TMP_DIR}/tail.log", "a") {|f|
-        f.puts '["foo7","6 Dec 2001 12:33:45",{"bar7":"hoge7"}]'
+        f.puts %Q|["foo7","#{time}",{"bar7":"hoge7"}]|
       }
       sleep 1
     end
 
+    time = Time.parse(time)
     emits = d.emits
     assert_equal(emits.length, 1)
     assert_equal("foo7", emits[0][0])
-    assert_equal(1007609625, emits[0][1])
+    assert_equal(time.to_f, emits[0][1])
     assert_equal({"bar7"=>"hoge7"}, emits[0][2])
   end
 end
