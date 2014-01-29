@@ -21,6 +21,13 @@ class EventTailInputTest < Test::Unit::TestCase
     Fluent::Test::InputTestDriver.new(Fluent::EventTailInput).configure(conf)
   end
 
+  def unlink_file(path)
+    begin
+      File.unlink(path)
+    rescue Errno::ENOENT
+    end
+  end
+
   def test_configure
     d = create_driver
     assert_equal ["#{TMP_DIR}/tail.log"], d.instance.paths
@@ -30,6 +37,7 @@ class EventTailInputTest < Test::Unit::TestCase
   end
 
   def test_simple_emit
+    unlink_file("#{TMP_DIR}/tail.pos")
     File.open("#{TMP_DIR}/tail.log", "w") {|f|
       f.puts '["foo",123,{"bar":"hoge"}]'
     }
@@ -53,6 +61,7 @@ class EventTailInputTest < Test::Unit::TestCase
   end
 
   def test_default_time_format
+    unlink_file("#{TMP_DIR}/tail.pos")
     File.open("#{TMP_DIR}/tail.log", "w") {|f|
       f.puts '["foo","10/Oct/2010:20:57:59 -0700",{"bar":"hoge"}]'
     }
@@ -76,6 +85,7 @@ class EventTailInputTest < Test::Unit::TestCase
   end
 
   def test_composed_emit
+    unlink_file("#{TMP_DIR}/tail.pos")
     File.open("#{TMP_DIR}/tail.log", "w") {|f|
       f.puts '["foo",123,{"bar":"hoge"}]'
     }
@@ -102,7 +112,38 @@ class EventTailInputTest < Test::Unit::TestCase
     assert_equal({"bar6"=>"hoge6"}, emits[1][2])
   end
 
+  def test_composed_emit_skips_invalid_json_lines
+    unlink_file("#{TMP_DIR}/tail.pos")
+    File.open("#{TMP_DIR}/tail.log", "w") {|f|
+      f.puts '["foo",123,{"bar":"hoge"}]'
+    }
+
+    d = create_driver
+
+    d.run do
+      sleep 1
+
+      File.open("#{TMP_DIR}/tail.log", "a") {|f|
+        f.puts 'test invalid 1'
+        f.puts '["foo5",[[91011,{"bar5":"hoge5"}],' +
+          '["2011-10-24 12:30:20 -0400",{"bar6":"hoge6"}]]]'
+        f.puts 'test invalid 3'
+      }
+      sleep 2
+    end
+
+    emits = d.emits
+    assert_equal(emits.length, 2)
+    assert_equal("foo5", emits[0][0])
+    assert_equal(91011, emits[0][1])
+    assert_equal({"bar5"=>"hoge5"}, emits[0][2])
+    assert_equal("foo5", emits[1][0])
+    assert_equal(1319473820, emits[1][1])
+    assert_equal({"bar6"=>"hoge6"}, emits[1][2])
+  end
+
   def test_custom_time_format
+    unlink_file("#{TMP_DIR}/tail.pos")
     File.open("#{TMP_DIR}/tail.log", "w") {|f|
       f.puts '["foo",123,{"bar":"hoge"}]'
     }
