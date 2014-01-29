@@ -1,5 +1,7 @@
 # fluent-plugin-event-tail
 
+[![Build Status](https://travis-ci.org/imkira/fluent-plugin-event-tail.png)](https://travis-ci.org/imkira/fluent-plugin-event-tail)
+
 event-tail is an input plugin for [fluentd](http://fluentd.org) based on
 [in_tail](http://docs.fluentd.org/articles/in_tail) but for reading
 [tag, time, record] JSON messages from a file.
