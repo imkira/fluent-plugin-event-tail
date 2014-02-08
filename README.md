@@ -1,4 +1,4 @@
-# fluent-plugin-event-tail
+# fluent-plugin-event-tail, a plugin for [Fluentd](http://fluentd.org)
 
 [![Build Status](https://travis-ci.org/imkira/fluent-plugin-event-tail.png)](https://travis-ci.org/imkira/fluent-plugin-event-tail)
 
